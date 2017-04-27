@@ -67,7 +67,8 @@ class WPModal {
 		// Run the activate (in this Class scope) when the plugin is activated.
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 
-		add_action( 'init', array( $this, 'pluginsLoaded' ) );
+		// Add the locale loading action.
+		add_action( 'init', array( $this, 'load_locale' ) );
 
 		// Checking if we are in the Wordpress Administration Interface before setting up the tinyMCE Plugin and enqueuing admin scripts.
 		if ( is_admin() ) {
@@ -121,4 +122,116 @@ class WPModal {
 
 	}
 
-}
+	/**
+	 * Setup locale method
+	 */
+  	public function load_locale() { 
+    	load_plugin_textdomain( $this->td, false, dirname( plugin_basename( __FILE__ ) ) . '/translations');
+  	}
+
+  	/**
+  	 * Activation function - Can be used to trigger operations upon activating the plugin. 
+  	 */
+  	public function activate() {
+  		// Nothing to do here... for now.
+  	}
+
+  	/**
+  	 *	Filters to register the plugin with tinyMCE.
+  	 */
+  	function setup_tinymce_plugin() {
+  		// Check if the logged in user can edit posts or pages.
+  		if( ! current_user_can( 'edit_posts' ) || ! current_user_can( 'edit_pages' ) ){
+  			return;
+  		}
+
+  		// Check if the logged in WordPress user has the Visual Editor enabled. In contrary, the plugin is not necessary.
+  		if( get_user_option( 'rich_editing' ) !== 'true') {
+  			return;
+  		}
+
+  		// Register the necessary filters.
+  		add_filter( 'mce_external_plugins', array( &$this, 'add_tinymce_plugin' ) );
+  		add_filter( 'mce_buttons', array( &$this, 'add_tinymce_button' ) );
+  	}
+
+  	/**
+  	 * This method adds a TinyMCE plugin compatible Javascript file to the TinyMCE / Visual Editor instance.
+  	 *
+  	 * @param array $arr Array of TinyMCE Plugins.
+  	 * @return array Modified array with the new plugin to register.
+  	 */
+  	function add_tinymce_plugin( $arr ) {
+
+  		$arr['wpmodal'] = plugin_dir_url( __FILE__ ) . 'assets/js/tinymce-plugin.js';
+  		return $arr;
+
+  	}
+
+  	/**
+  	 * Includes a TinyMCE toolbar button wich the user can click to generate a modal.
+  	 *
+  	 * @param array $buttons The registered TinyMCE buttons array.
+  	 * @return array The new array with the new button config.
+  	 */
+  	function add_tinymce_button( $buttons ) {
+
+  		array_push( $buttons, '|', 'wpmodal')
+  		return $buttons;
+
+  	}
+
+  	/**
+  	 * This function composes the action of adding custom translations for TinyMCE.
+  	 * Impl reference: https://codex.wordpress.org/Plugin_API/Filter_Reference/mce_external_languages#Example
+	 *
+	 * @param Array $arr The current TinyMCE locales array.
+	 * @return Array The array with the new translations setup.
+	 */
+  	function add_tinymce_translations( $arr ) {
+
+  		// TIP: you can pass instance variables inside the translations and access them later in js.
+  		// Check the /translations/js/pt.php for example reference.
+  		$arr['wpmodal'] = plugin_dir_path( __FILE__ ) . '/translations/js/pt.php';
+  		return $arr;
+
+  	}
+
+  	/**
+  	 * Enqueue scripts destined only for wp-admin.
+  	 */
+  	public function enqueue_admin_scripts() {
+
+  		// Register select2 lib intro Wordpress (to be used by the TinyMCE plugin).
+  		wp_register_style( 'select2css', plugin_dir_url( __FILE__ ) . 'assets/js/vendor/select2/css/select2.min.css', array(), '4.0.3' );
+  		wp_register_script( 'select2', plugin_dir_url( __FILE__ ) . 'assets/js/vendor/select2/js/select2.full.min.js', array( 'jquery' ), '4.0.3' );
+
+  		// Register javascript and css for this plugin.
+  		wp_register_style( 'wpmodal_admin_styles', plugin_dir_url( __FILE__ ) . 'assets/css/style_admin.css' );
+  		wp_register_script( 'wpmodal_admin_scripts', plugin_dir_url( __FILE__ ) . 'assets/js/admin.js', array( 'jquery' ) );
+
+  		// TIP: Admin scripts can be translated using wp_localize_script.
+  		// wp_localize_script( 'wp_modal_admin_scripts', 'vars', array( 'translatable_key' => __('Translatable string', $this -> td ) ) );
+
+  		wp_enqueue_style( 'select2css' );
+  		wp_enqueue_script( 'select2' );
+
+  		wp_enqueue_style( 'wpmodal_admin_styles' );
+  		wp_enqueue_script( 'wpmodal_admin_scripts' );
+
+  	}
+
+  	/**
+  	 * Enqueue scripts for the frontend.
+  	 */
+  	public function enqueue_scripts() {
+  		
+  		wp_register_style( 'wpmodal_styles', plugin_dir_url( __FILE__ ) . 'assets/css/style.css' );
+  		wp_register_script( 'wpmodal_scripts', plugin_dir_url( __FILE__ ) . 'assets/js/main.js', array( 'jquery' ), '1.0', true );
+
+  		wp_enqueue_style( 'wpmodal_styles' );
+  		wp_enqueue_script( 'wpmodal_scripts' );
+
+  	}
+
+} // End class WPModal.

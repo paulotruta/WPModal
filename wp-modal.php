@@ -235,3 +235,6 @@ class WPModal {
   	}
 
 } // End class WPModal.
+// Initialize the plugin class by instantiating the shortcode function!
+add_shortcode( 'wpmodal', array( WPModal::get_instance(), 'wpmodal_shortcode_func' ) );
+?>

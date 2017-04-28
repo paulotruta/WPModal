@@ -59,6 +59,8 @@ class WPModal {
 	 */
 	public function __construct() {
 
+		error_log("WPMODAL: Constructing plugin.");
+
 		$this -> error_text = __( 'Something is making the system unable to correctly build a modal.', 'wpmodal' );
 		// Prefix all template path variables with the plugin dir path.
 		$this -> shortcode_template_file = plugin_dir_path( __FILE__ ) . $this -> shortcode_template_file;

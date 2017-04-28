@@ -80,6 +80,8 @@ class WPModal {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
+		add_action( 'wp_footer', 'wpmodal_generator_func' ); // This method will generate all the necessary modals for the given page.
+
 		return true;
 	}
 
@@ -112,16 +114,62 @@ class WPModal {
 	 * The shortcode handler for wpmodal
 	 *
 	 * @param string $attributes The shortcode attributes declared in the tag.
+	 * @param string $content The inner content of the shortcode tags.
 	 * @return string     The generated shortcode content in string form.
 	 */
-	function wpmodal_shortcode_func( $attributes ) {
+	function wpmodal_shortcode_func( $attributes, $content = null ) {
 
-		$shortcode_content = '';
+		$modal_type = $content ? '' : 'form';
 
-		return $shortcode_content;
+		// Although not in the tinyMCE button configuration, this shortcode also accepts the following parameters:
+		// - type [bootstrap or generic] (to force load a specific modal type).
+		// - size [modal-sm or modal-lg] (The modal size class from bootstrap (if applicable)).
+		$defaults = array(
+			'id'    => '',
+			'label' => '',
+			'tag' => '',
+			'classes' => '',
+			'modal_title' => '',
+			'modal_picture' => '',
+			'type'  => $modal_type,
+			'size'  => '',
+		);
+		$atts = array_merge( $defaults, $atts );
+
+		global $modal_vars; // This global is necessary in order to post process the shortcode using the wpmodal_generator_func method.
+
+		if ( ! isset( $modal_vars['modals'] ) ) {
+			$modal_vars['modals'] = array();
+		}
+		$modal_vars['modals'][] = array_merge(
+			$atts,
+			array(
+				'inner_content' => $content,
+			)
+		);
+
+
+		$classes = empty( $atts['classes'] ) ? '' : ' class="' . esc_attr( $atts['classes'] ) . '"';
+		$modal_index = count( $modal_vars['modals'] ) - 1;
+		$link = '<' . $atts['tag'] . ' data-toggle="modal" data-target="#wpmodal-' . esc_attr( $modal_index ) . '"' . $classes . '>' . $atts['label'] . '</' . $atts['tag'] . '>';
+		return $link;
 
 	}
 
+	/**
+	 * Builds the necessary markup to output to the footer (where the modal definition should always be).
+	 */
+	function wpmodal_generator_func() {
+
+		global $modal_vars; // Access the global created by wp_modal_shortcode_func method, containing all information about all the existant modals for this page.
+
+		if ( isset( $modal_vars['modals'] ) && is_array( $modal_vars['modals'] ) ) {
+			foreach ( $modal_vars['modals'] as $i => $atts ) {
+				include( $this -> shortcode_template_file );
+			} // End foreach().
+		} // End if().
+	}
+	
 	/**
 	 * Setup locale method
 	 */

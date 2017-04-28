@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: WPModal 1.0\n"
-"POT-Creation-Date: 2017-04-28 01:21+0100\n"
-"PO-Revision-Date: 2017-04-28 01:21+0100\n"
+"Project-Id-Version: wpmodal\n"
+"POT-Creation-Date: 2017-04-28 01:37+0100\n"
+"PO-Revision-Date: 2017-04-28 01:37+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_PT\n"
@@ -10,13 +10,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.0.1\n"
-"X-Poedit-Basepath: .\n"
+"X-Poedit-Basepath: ..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-SearchPath-0: .\n"
-"X-Poedit-SearchPathExcluded-0: ../assets/js/vendor\n"
+"X-Poedit-SearchPathExcluded-0: assets/js/vendor\n"
 
-#: js/pt.php:13
+#: translations/js/pt.php:13
 msgid "Translatable String"
 msgstr "String traduzível"
+
+#: wp-modal.php:64
+msgid "Something is making the system unable to correctly build a modal."
+msgstr "Algo está a fazer com que o sistema não consiga gerar corretamente modals."

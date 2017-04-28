@@ -47,7 +47,7 @@ class WPModal {
 	 * Allows the plugin instance to be used as a singleton across a Wordpress requests instance.
 	 *
 	 * @return class WPModal current active instance.
-	 *
+	 */
 	public static function get_instance() {
 		// create an object if not already instantiated, and register it in the class.
 		self::$instance = (null === self::$instance) ? new self : null;
@@ -224,7 +224,7 @@ class WPModal {
   	 */
   	function add_tinymce_button( $buttons ) {
 
-  		array_push( $buttons, '|', 'wpmodal')
+  		array_push( $buttons, '|', 'wpmodal');
   		return $buttons;
 
   	}

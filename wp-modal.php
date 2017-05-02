@@ -75,7 +75,7 @@ class WPModal {
 		// Checking if we are in the Wordpress Administration Interface before setting up the tinyMCE Plugin and enqueuing admin scripts.
 		if ( is_admin() ) {
 			add_action( 'init', array( $this, 'setup_tinymce_plugin' ) );
-			add_action( 'enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 			// Add tinymce translations.
 			add_filter( 'mce_external_languages', array( $this, 'add_tinymce_translations' ) );
 		}
@@ -242,6 +242,7 @@ class WPModal {
 
   		// TIP: you can pass instance variables inside the translations and access them later in js.
   		// Check the /translations/js/pt.php for example reference.
+  		error_log("Adding translations.");
   		$arr['wpmodal'] = plugin_dir_path( __FILE__ ) . '/translations/js/pt.php';
   		return $arr;
 

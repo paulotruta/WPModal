@@ -17,7 +17,7 @@ $title = empty( $atts['modal_title'] ) ? $atts['label'] : $atts['modal_title'];
 $title = explode( ' ', $title, 3 );
 ?>
 
-<div id="unimodal-<?php echo esc_attr( $i ); ?>" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ModalLabel-<?php echo esc_attr( $i ); ?>" aria-hidden="true">
+<div id="wpmodal-<?php echo esc_attr( $i ); ?>" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ModalLabel-<?php echo esc_attr( $i ); ?>" aria-hidden="true">
 	<div class="modal-dialog <?php echo esc_attr( $size ); ?>">
 		<div class="modal-content">
 			<div class="modal-header">

@@ -1,3 +1,7 @@
+.mce-modal-picture {
+	display:  none !important;
+}
+
 .select2-container{
     z-index: 9999999 !important;
     margin-top: 50px !important;

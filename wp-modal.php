@@ -84,6 +84,11 @@ class WPModal {
 
 		add_action( 'wp_footer', 'wpmodal_generator_func' ); // This method will generate all the necessary modals for the given page.
 
+		// Defining settings page for this plugin.
+
+  		add_action( 'admin_menu', array( $this, 'wpmodal_add_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'wpmodal_settings_init' ) );
+
 		return true;
 	}
 
@@ -284,6 +289,120 @@ class WPModal {
   		wp_enqueue_script( 'wpmodal_scripts' );
 
   	}
+
+
+	function wpmodal_add_admin_menu(  ) { 
+
+		add_options_page( 'WPModal', 'WPModal', 'manage_options', 'wpmodal', array($this, 'wpmodal_options_page' ) );
+
+	}
+
+
+	function wpmodal_settings_init(  ) { 
+
+		register_setting( 'pluginPage', 'wpmodal_settings' );
+
+		add_settings_section(
+			'wpmodal_pluginPage_section', 
+			__( 'Configuration page', 'wpmodal' ), 
+			array( $this, 'wpmodal_settings_section_callback' ), 
+			'pluginPage'
+		);
+
+		add_settings_field( 
+			'wpmodal_checkbox_field_0', 
+			__( 'Disable auto bootstrap theme detection', 'wpmodal' ), 
+			array( $this, 'wpmodal_checkbox_field_0_render' ), 
+			'pluginPage', 
+			'wpmodal_pluginPage_section' 
+		);
+
+		// add_settings_field( 
+		// 	'wpmodal_checkbox_field_1', 
+		// 	__( 'Settings field description', 'wpmodal' ), 
+		// 	array( $this, 'wpmodal_checkbox_field_1_render' ), 
+		// 	'pluginPage', 
+		// 	'wpmodal_pluginPage_section' 
+		// );
+
+		add_settings_field( 
+			'wpmodal_select_field_2', 
+			__( 'Use the following render method', 'wpmodal' ), 
+			array( $this, 'wpmodal_select_field_2_render' ), 
+			'pluginPage', 
+			'wpmodal_pluginPage_section' 
+		);
+
+
+	}
+
+
+	function wpmodal_checkbox_field_0_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<input type='checkbox' name='wpmodal_settings[wpmodal_checkbox_field_0]' <?php checked( $options['wpmodal_checkbox_field_0'], 1 ); ?> value='1'>
+		<?php
+
+	}
+
+
+	function wpmodal_checkbox_field_1_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<input type='checkbox' name='wpmodal_settings[wpmodal_checkbox_field_1]' <?php checked( $options['wpmodal_checkbox_field_1'], 1 ); ?> value='1'>
+		<?php
+
+	}
+
+
+	function wpmodal_select_field_2_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<select name='wpmodal_settings[wpmodal_select_field_2]'>
+			<option value='1' <?php selected( $options['wpmodal_select_field_2'], 1 ); ?>>jQuery Modal</option>
+			<option value='2' <?php selected( $options['wpmodal_select_field_2'], 2 ); ?>>Pure Javascript Modal</option>
+			<option value='3' <?php selected( $options['wpmodal_select_field_2'], 3 ); ?>>Bootstrap Modal</option>
+		</select>
+
+	<?php
+
+	}
+
+
+	function wpmodal_settings_section_callback(  ) { 
+
+		echo __( 'This plugin is compatible with Bootstrap Themes out-of-the box.', 'wpmodal' );
+
+		?>
+			<br>
+		<?php
+
+		echo __( 'You can disable bootstrap detection below. You can also force the render method used.', 'wpmodal' );
+
+	}
+
+
+	function wpmodal_options_page(  ) { 
+
+		?>
+		<form action='options.php' method='post'>
+
+			<h2>WPModal</h2>
+
+			<?php
+			settings_fields( 'pluginPage' );
+			do_settings_sections( 'pluginPage' );
+			submit_button();
+			?>
+
+		</form>
+		<?php
+
+	}
+
 
 } // End class WPModal.
 // Initialize the plugin class by instantiating the shortcode function!

@@ -59,7 +59,7 @@ class WPModal {
 	 */
 	public function __construct() {
 
-		error_log("WPMODAL: Constructing plugin.");
+		error_log( 'WPMODAL: Constructing plugin.' );
 
 		$this -> error_text = __( 'Something is making the system unable to correctly build a modal.', 'wpmodal' );
 		// Prefix all template path variables with the plugin dir path.
@@ -82,11 +82,10 @@ class WPModal {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
-		add_action( 'wp_footer', 'wpmodal_generator_func' ); // This method will generate all the necessary modals for the given page.
+		add_action( 'wp_footer', array( $this, 'wpmodal_generator_func' ) ); // This method will generate all the necessary modals for the given page.
 
 		// Defining settings page for this plugin.
-
-  		add_action( 'admin_menu', array( $this, 'wpmodal_add_admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'wpmodal_add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'wpmodal_settings_init' ) );
 
 		return true;
@@ -141,24 +140,22 @@ class WPModal {
 			'type'  => $modal_type,
 			'size'  => '',
 		);
-		$atts = array_merge( $defaults, $atts );
+		$attributes = array_merge( $defaults, $attributes );
 
 		global $modal_vars; // This global is necessary in order to post process the shortcode using the wpmodal_generator_func method.
-
 		if ( ! isset( $modal_vars['modals'] ) ) {
 			$modal_vars['modals'] = array();
 		}
 		$modal_vars['modals'][] = array_merge(
-			$atts,
+			$attributes,
 			array(
 				'inner_content' => $content,
 			)
 		);
 
-
-		$classes = empty( $atts['classes'] ) ? '' : ' class="' . esc_attr( $atts['classes'] ) . '"';
+		$classes = empty( $attributes['classes'] ) ? '' : ' class="' . esc_attr( $attributes['classes'] ) . '"';
 		$modal_index = count( $modal_vars['modals'] ) - 1;
-		$link = '<' . $atts['tag'] . ' data-toggle="modal" data-target="#wpmodal-' . esc_attr( $modal_index ) . '"' . $classes . '>' . $atts['label'] . '</' . $atts['tag'] . '>';
+		$link = '<' . $attributes['tag'] . ' data-toggle="modal" data-target="#wpmodal-' . esc_attr( $modal_index ) . '"' . $classes . '>' . $attributes['label'] . '</' . $attributes['tag'] . '>';
 		return $link;
 
 	}
@@ -176,20 +173,20 @@ class WPModal {
 			} // End foreach().
 		} // End if().
 	}
-	
+
 	/**
 	 * Setup locale method
 	 */
-  	public function load_locale() { 
-    	load_plugin_textdomain( $this->td, false, dirname( plugin_basename( __FILE__ ) ) . '/translations');
-  	}
+	public function load_locale() {
+		load_plugin_textdomain( $this->td, false, dirname( plugin_basename( __FILE__ ) ) . '/translations' );
+	}
 
-  	/**
-  	 * Activation function - Can be used to trigger operations upon activating the plugin. 
-  	 */
-  	public function activate() {
-  		// Nothing to do here... for now.
-  	}
+	/**
+	 * Activation function - Can be used to trigger operations upon activating the plugin.
+	 */
+	public function activate() {
+		// Nothing to do here... for now.
+	}
 
   	/**
   	 *	Filters to register the plugin with tinyMCE.

@@ -106,8 +106,8 @@
 						var modal_title = 'modal_title="' + $('.mce-modal-title').first().val() + '" ';
 						var modal_picture = 'modal_picture="' + $('.mce-modal-picture').first().val() + '" ';
 						var selected_data = tinyMCE.activeEditor.selection.getContent();
-						var opening_shortcode = '[unimodal ' + tag + classes + label + modal_title + modal_picture + ']';
-						var closing_shortcode = '[/unimodal]';
+						var opening_shortcode = '[wpmodal ' + tag + classes + label + modal_title + modal_picture + ']';
+						var closing_shortcode = '[/wpmodal]';
 
 						var final_shortcode = opening_shortcode;
 						if( selected_data ){

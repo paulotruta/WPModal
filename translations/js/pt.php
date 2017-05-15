@@ -15,11 +15,14 @@ function wpmodal_tinymce_plugin_translation() {
     	'modalHelpText' => esc_js( __( 'Fill the information regarding the wrapper and content of the modal.', 'wpmodal' ) ),
     	'modalLabelHtmlWrapperTag' => esc_js( __( 'Wrapper Html tag', 'wpmodal' ) ),
     	'modalLabelCSSWrapperClasses' => esc_js( __( 'Wrapper CSS classes', 'wpmodal' ) ),
-    	'modalLabelWrapperLabel' => esc_js( __( 'Wrapper label', 'wpmodal' ) ),
+    	'modalLabelWrapperLabel' => esc_js( __( 'Call-to-action label', 'wpmodal' ) ),
     	'modalLabelTitle' => esc_js( __( 'Modal title', 'wpmodal' ) ),
     	'modalLabelPicture' => esc_js( __( 'Modal Background', 'wpmodal' ) ),
     	'modalPictureBtnText' => esc_js( __( 'Choose Image', 'wpmodal' ) ),
     	'mediaGalleryTitle' => esc_js( __( 'Choose a background image', 'wpmodal' ) ),
+        'modalCta' => esc_js( __( 'Call-to-action type', 'wpmodal' ) ),
+        'modalAdvanced' => esc_js( __( 'Show advanced options', 'wpmodal' ) ),
+        'successIconUrl' => str_replace('/translations', '', plugin_dir_url( dirname(__FILE__) ) . 'assets/img/success_icon.png' ),
     );
 
     $locale = _WP_Editors::$mce_locale;

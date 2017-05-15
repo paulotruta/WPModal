@@ -59,7 +59,7 @@ class WPModal {
 	 */
 	public function __construct() {
 
-		error_log("WPMODAL: Constructing plugin.");
+		// error_log("WPMODAL: Constructing plugin.");
 
 		$this -> error_text = __( 'Something is making the system unable to correctly build a modal.', 'wpmodal' );
 		// Prefix all template path variables with the plugin dir path.
@@ -82,7 +82,7 @@ class WPModal {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
-		add_action( 'wp_footer', 'wpmodal_generator_func' ); // This method will generate all the necessary modals for the given page.
+		add_action( 'wp_footer', array( $this, 'wpmodal_generator_func' ) ); // This method will generate all the necessary modals for the given page.
 
 		return true;
 	}
@@ -136,7 +136,7 @@ class WPModal {
 			'type'  => $modal_type,
 			'size'  => '',
 		);
-		$atts = array_merge( $defaults, $atts );
+		$atts = array_merge( $defaults, $attributes );
 
 		global $modal_vars; // This global is necessary in order to post process the shortcode using the wpmodal_generator_func method.
 
@@ -284,6 +284,118 @@ class WPModal {
   		wp_enqueue_script( 'wpmodal_scripts' );
 
   	}
+
+	function wpmodal_add_admin_menu(  ) { 
+
+		add_options_page( 'WPModal', 'WPModal', 'manage_options', 'wpmodal', array($this, 'wpmodal_options_page' ) );
+
+	}
+
+
+	function wpmodal_settings_init(  ) { 
+
+		register_setting( 'pluginPage', 'wpmodal_settings' );
+
+		add_settings_section(
+			'wpmodal_pluginPage_section', 
+			__( 'Base settings', 'wpmodal' ), 
+			array( $this, 'wpmodal_settings_section_callback' ), 
+			'pluginPage'
+		);
+
+		add_settings_field( 
+			'wpmodal_checkbox_field_0',
+			__( 'Enable "Formidable Forms" compatibility', 'wpmodal' ), 
+			array( $this, 'wpmodal_checkbox_field_0_render' ), 
+			'pluginPage', 
+			'wpmodal_pluginPage_section' 
+		);
+
+		// add_settings_field( 
+		// 	'wpmodal_checkbox_field_1', 
+		// 	__( 'Settings field description', 'wpmodal' ), 
+		// 	array( $this, 'wpmodal_checkbox_field_1_render' ), 
+		// 	'pluginPage', 
+		// 	'wpmodal_pluginPage_section' 
+		// );
+
+		add_settings_field( 
+			'wpmodal_select_field_2', 
+			__( 'Use the following render method', 'wpmodal' ), 
+			array( $this, 'wpmodal_select_field_2_render' ), 
+			'pluginPage', 
+			'wpmodal_pluginPage_section' 
+		);
+
+
+	}
+
+
+	function wpmodal_checkbox_field_0_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<input type='checkbox' name='wpmodal_settings[wpmodal_checkbox_field_0]' <?php checked( $options['wpmodal_checkbox_field_0'], 1 ); ?> value='1'>
+		<?php
+
+	}
+
+
+	function wpmodal_checkbox_field_1_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<input type='checkbox' name='wpmodal_settings[wpmodal_checkbox_field_1]' <?php checked( $options['wpmodal_checkbox_field_1'], 1 ); ?> value='1'>
+		<?php
+
+	}
+
+
+	function wpmodal_select_field_2_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<select name='wpmodal_settings[wpmodal_select_field_2]'>
+			<option value='1' <?php selected( $options['wpmodal_select_field_2'], 1 ); ?>>Autodetect</option>
+			<option value='2' <?php selected( $options['wpmodal_select_field_2'], 2 ); ?>>Bootstrap</option>
+			<option value='3' <?php selected( $options['wpmodal_select_field_2'], 3 ); ?>>Jquery Modal</option>
+		</select>
+
+	<?php
+
+	}
+
+
+	function wpmodal_settings_section_callback(  ) { 
+
+		echo __( 'This plugin is compatible with Bootstrap Themes out-of-the box.', 'wpmodal' );
+
+		?>
+			<br>
+		<?php
+
+		echo __( 'You can force the render method used for the modal, or activate support for Formidable Forms submissions.', 'wpmodal' );
+
+	}
+
+
+	function wpmodal_options_page(  ) { 
+
+		?>
+		<form action='options.php' method='post'>
+
+			<h2>WPModal</h2>
+
+			<?php
+			settings_fields( 'pluginPage' );
+			do_settings_sections( 'pluginPage' );
+			submit_button();
+			?>
+
+		</form>
+		<?php
+
+	}
 
 } // End class WPModal.
 // Initialize the plugin class by instantiating the shortcode function!

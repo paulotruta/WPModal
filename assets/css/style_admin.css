@@ -12,3 +12,8 @@
     margin-top: -50px !important;
     margin-left: -15px !important;
 }
+
+.mce-modal-picture-preview {
+	width: 35px !important;
+	margin-left: 20px !important;
+}

@@ -59,7 +59,7 @@ class WPModal {
 	 */
 	public function __construct() {
 
-		error_log("WPMODAL: Constructing plugin.");
+		// error_log("WPMODAL: Constructing plugin.");
 
 		$this -> error_text = __( 'Something is making the system unable to correctly build a modal.', 'wpmodal' );
 		// Prefix all template path variables with the plugin dir path.
@@ -82,7 +82,12 @@ class WPModal {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
-		add_action( 'wp_footer', 'wpmodal_generator_func' ); // This method will generate all the necessary modals for the given page.
+		add_action( 'wp_footer', array( $this, 'wpmodal_generator_func' ) ); // This method will generate all the necessary modals for the given page.
+
+		// Defining settings page for this plugin.
+		add_action( 'admin_menu', array( $this, 'wpmodal_add_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'wpmodal_settings_init' ) );
+
 
 		return true;
 	}
@@ -121,7 +126,7 @@ class WPModal {
 	 */
 	function wpmodal_shortcode_func( $attributes, $content = null ) {
 
-		$modal_type = $content ? '' : 'form';
+		$modal_type = $content ? '' : 'bootstrap';
 
 		// Although not in the tinyMCE button configuration, this shortcode also accepts the following parameters:
 		// - type [bootstrap or generic] (to force load a specific modal type).
@@ -136,24 +141,24 @@ class WPModal {
 			'type'  => $modal_type,
 			'size'  => '',
 		);
-		$atts = array_merge( $defaults, $atts );
+
+		$attributes = array_merge( $defaults, $attributes );
+
 
 		global $modal_vars; // This global is necessary in order to post process the shortcode using the wpmodal_generator_func method.
-
 		if ( ! isset( $modal_vars['modals'] ) ) {
 			$modal_vars['modals'] = array();
 		}
 		$modal_vars['modals'][] = array_merge(
-			$atts,
+			$attributes,
 			array(
 				'inner_content' => $content,
 			)
 		);
 
-
-		$classes = empty( $atts['classes'] ) ? '' : ' class="' . esc_attr( $atts['classes'] ) . '"';
+		$classes = empty( $attributes['classes'] ) ? '' : ' class="' . esc_attr( $attributes['classes'] ) . '"';
 		$modal_index = count( $modal_vars['modals'] ) - 1;
-		$link = '<' . $atts['tag'] . ' data-toggle="modal" data-target="#wpmodal-' . esc_attr( $modal_index ) . '"' . $classes . '>' . $atts['label'] . '</' . $atts['tag'] . '>';
+		$link = '<' . $attributes['tag'] . ' data-toggle="modal" data-target="#wpmodal-' . esc_attr( $modal_index ) . '"' . $classes . '>' . $attributes['label'] . '</' . $attributes['tag'] . '>';
 		return $link;
 
 	}
@@ -171,20 +176,20 @@ class WPModal {
 			} // End foreach().
 		} // End if().
 	}
-	
+
 	/**
 	 * Setup locale method
 	 */
-  	public function load_locale() { 
-    	load_plugin_textdomain( $this->td, false, dirname( plugin_basename( __FILE__ ) ) . '/translations');
-  	}
+	public function load_locale() {
+		load_plugin_textdomain( $this->td, false, dirname( plugin_basename( __FILE__ ) ) . '/translations' );
+	}
 
-  	/**
-  	 * Activation function - Can be used to trigger operations upon activating the plugin. 
-  	 */
-  	public function activate() {
-  		// Nothing to do here... for now.
-  	}
+	/**
+	 * Activation function - Can be used to trigger operations upon activating the plugin.
+	 */
+	public function activate() {
+		// Nothing to do here... for now.
+	}
 
   	/**
   	 *	Filters to register the plugin with tinyMCE.
@@ -284,6 +289,120 @@ class WPModal {
   		wp_enqueue_script( 'wpmodal_scripts' );
 
   	}
+
+
+	function wpmodal_add_admin_menu(  ) { 
+
+		add_options_page( 'WPModal', 'WPModal', 'manage_options', 'wpmodal', array($this, 'wpmodal_options_page' ) );
+
+	}
+
+
+	function wpmodal_settings_init(  ) { 
+
+		register_setting( 'pluginPage', 'wpmodal_settings' );
+
+		add_settings_section(
+			'wpmodal_pluginPage_section', 
+			__( 'Configuration page', 'wpmodal' ), 
+			array( $this, 'wpmodal_settings_section_callback' ), 
+			'pluginPage'
+		);
+
+		// add_settings_field( 
+		// 	'wpmodal_checkbox_field_0', 
+		// 	__( 'Disable auto bootstrap theme detection', 'wpmodal' ), 
+		// 	array( $this, 'wpmodal_checkbox_field_0_render' ), 
+		// 	'pluginPage', 
+		// 	'wpmodal_pluginPage_section' 
+		// );
+
+		// add_settings_field( 
+		// 	'wpmodal_checkbox_field_1', 
+		// 	__( 'Settings field description', 'wpmodal' ), 
+		// 	array( $this, 'wpmodal_checkbox_field_1_render' ), 
+		// 	'pluginPage', 
+		// 	'wpmodal_pluginPage_section' 
+		// );
+
+		add_settings_field( 
+			'wpmodal_select_field_2', 
+			__( 'Use the following render method', 'wpmodal' ), 
+			array( $this, 'wpmodal_select_field_2_render' ), 
+			'pluginPage', 
+			'wpmodal_pluginPage_section' 
+		);
+
+
+	}
+
+
+	function wpmodal_checkbox_field_0_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<input type='checkbox' name='wpmodal_settings[wpmodal_checkbox_field_0]' <?php checked( $options['wpmodal_checkbox_field_0'], 1 ); ?> value='1'>
+		<?php
+
+	}
+
+
+	function wpmodal_checkbox_field_1_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<input type='checkbox' name='wpmodal_settings[wpmodal_checkbox_field_1]' <?php checked( $options['wpmodal_checkbox_field_1'], 1 ); ?> value='1'>
+		<?php
+
+	}
+
+
+	function wpmodal_select_field_2_render(  ) { 
+
+		$options = get_option( 'wpmodal_settings' );
+		?>
+		<select name='wpmodal_settings[wpmodal_select_field_2]'>
+			<option value='1' <?php selected( $options['wpmodal_select_field_2'], 1 ); ?>>Autodetect</option>
+			<option value='2' <?php selected( $options['wpmodal_select_field_2'], 2 ); ?>>Bootstrap</option>
+			<option value='3' <?php selected( $options['wpmodal_select_field_2'], 3 ); ?>>Jquery Modal</option>
+		</select>
+
+	<?php
+
+	}
+
+
+	function wpmodal_settings_section_callback(  ) { 
+
+		echo __( 'This plugin is compatible with Bootstrap Themes out-of-the box.', 'wpmodal' );
+
+		?>
+			<br>
+		<?php
+
+
+		echo __( 'You can disable bootstrap detection below. You can also force the render method used.', 'wpmodal' );
+
+	}
+
+
+	function wpmodal_options_page(  ) { 
+
+		?>
+		<form action='options.php' method='post'>
+
+			<h2>WPModal</h2>
+
+			<?php
+			settings_fields( 'pluginPage' );
+			do_settings_sections( 'pluginPage' );
+			submit_button();
+			?>
+
+		</form>
+		<?php
+
+	}
 
 } // End class WPModal.
 // Initialize the plugin class by instantiating the shortcode function!

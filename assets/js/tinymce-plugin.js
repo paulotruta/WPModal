@@ -18,6 +18,11 @@
 			title: editor.getLang('wpmodal.insertModalTitle'),
 			image: url + '/../img/tinymce_btn_icon.png',
 			onclick: function (e) {
+
+				// TODO: Chck if any selection is being made. Change the picture label to indicate a lightbox.
+
+				var modal_cta = null;
+
 				editor.windowManager.open( {
 					title: editor.getLang('wpmodal.insertModalTitle'),
 					inline: 'yes',
@@ -28,19 +33,43 @@
 							text: editor.getLang('wpmodal.modalHelpText'),
 						},
 						{
-							type: 'textbox',
-							name: 'modal-tag',
-							classes: 'modal-tag',
-							minWidth: 300,
-							label: editor.getLang('wpmodal.modalLabelHtmlWrapperTag'),
+							type: 'listbox', 
+    						name: 'modal-cta', 
+    						classes: 'modal-cta',
+    						label: editor.getLang('wpmodal.modalCta'), 
+						    'values': [
+						        {text: 'Button', value: 'btn btn-primary'},
+						        {text: 'Primary Button', value: 'btn btn-primary'},
+						        {text: 'Success Button', value: 'btn btn-success'},
+						        {text: 'Info Button', value: 'btn btn-info'},
+						        {text: 'Warning Button', value: 'btn btn-warning'},
+						        {text: 'Danger Button', value: 'btn btn-danger'},
+						        {text: 'Link', value: 'wpmodal-Slink'},
+						    ],
+						    onPostRender: function(){
+						    	modal_cta = this;
+						    }
 						},
-						{
-							type: 'textbox',
-							name: 'modal-classes',
-							classes: 'modal-classes',
-							minWidth: 300,
-							label: editor.getLang('wpmodal.modalLabelCSSWrapperClasses'),
-						},
+						// {
+						// 	type: 'checkbox',
+						// 	name: 'modal-advanced',
+						// 	classes: 'modal-advanced',
+						// 	label: editor.getLang('wpmodal.modalAdvanced'),
+						// },
+						// {
+						// 	type: 'textbox',
+						// 	name: 'modal-tag',
+						// 	classes: 'modal-tag',
+						// 	minWidth: 300,
+						// 	label: editor.getLang('wpmodal.modalLabelHtmlWrapperTag'),
+						// },
+						// {
+						// 	type: 'textbox',
+						// 	name: 'modal-classes',
+						// 	classes: 'modal-classes',
+						// 	minWidth: 300,
+						// 	label: editor.getLang('wpmodal.modalLabelCSSWrapperClasses'),
+						// },
 						{
 							type: 'textbox',
 							name: 'modal-label',
@@ -77,12 +106,12 @@
 								gallery_window.on('select', function() {
 									// Although the selection outputs multiple values, in this scenario we only want to fetch the "first()" value.
 									var user_selection = gallery_window.state().get('selection').first().toJSON();
-
+									var chosen_pic_icon = editor.getLang('wpmodal.successIconUrl');
 									// user_selection breaks down into an object.
 									// Clean the current preview, and populate the picture preview placeholder, and the shortcode corresponding field.
 									$('.mce-modal-picture-preview').remove();
-									$('.mce-modal-picture-btn').after(
-										'<img class="mce-modal-picture-preview" src="' + user_selection.url + '">'
+									$('.mce-modal-picture-btn').append(
+										'<img class="mce-modal-picture-preview" src="' + chosen_pic_icon + '">'
 									);
 									$('.mce-modal-picture').first().val(user_selection.id);
 
@@ -100,14 +129,17 @@
 						},
 					],
 					onsubmit: function( e ) {
-						var tag = 'tag="' + $('.mce-modal-tag').first().val() + '" ';
-						var classes = 'classes="' + $('.mce-modal-classes').first().val() + '" ';
+
+						// var tag = 'tag="' + $('.mce-modal-tag').first().val() + '" ';
+						var tag = 'tag="a" ';
+						console.log($('.mce-modal-cta').first());
+						var classes = 'classes="' + modal_cta.value() + '" ';
 						var label = 'label="' + $('.mce-modal-label').first().val() + '" ';
 						var modal_title = 'modal_title="' + $('.mce-modal-title').first().val() + '" ';
 						var modal_picture = 'modal_picture="' + $('.mce-modal-picture').first().val() + '" ';
 						var selected_data = tinyMCE.activeEditor.selection.getContent();
-						var opening_shortcode = '[unimodal ' + tag + classes + label + modal_title + modal_picture + ']';
-						var closing_shortcode = '[/unimodal]';
+						var opening_shortcode = '[wpmodal ' + tag + classes + label + modal_title + modal_picture + ']';
+						var closing_shortcode = '[/wpmodal]';
 
 						var final_shortcode = opening_shortcode;
 						if( selected_data ){

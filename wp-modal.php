@@ -84,6 +84,11 @@ class WPModal {
 
 		add_action( 'wp_footer', array( $this, 'wpmodal_generator_func' ) ); // This method will generate all the necessary modals for the given page.
 
+		// Defining settings page for this plugin.
+		add_action( 'admin_menu', array( $this, 'wpmodal_add_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'wpmodal_settings_init' ) );
+
+
 		return true;
 	}
 
@@ -121,7 +126,7 @@ class WPModal {
 	 */
 	function wpmodal_shortcode_func( $attributes, $content = null ) {
 
-		$modal_type = $content ? '' : 'form';
+		$modal_type = $content ? '' : 'bootstrap';
 
 		// Although not in the tinyMCE button configuration, this shortcode also accepts the following parameters:
 		// - type [bootstrap or generic] (to force load a specific modal type).
@@ -136,24 +141,24 @@ class WPModal {
 			'type'  => $modal_type,
 			'size'  => '',
 		);
-		$atts = array_merge( $defaults, $attributes );
+
+		$attributes = array_merge( $defaults, $attributes );
+
 
 		global $modal_vars; // This global is necessary in order to post process the shortcode using the wpmodal_generator_func method.
-
 		if ( ! isset( $modal_vars['modals'] ) ) {
 			$modal_vars['modals'] = array();
 		}
 		$modal_vars['modals'][] = array_merge(
-			$atts,
+			$attributes,
 			array(
 				'inner_content' => $content,
 			)
 		);
 
-
-		$classes = empty( $atts['classes'] ) ? '' : ' class="' . esc_attr( $atts['classes'] ) . '"';
+		$classes = empty( $attributes['classes'] ) ? '' : ' class="' . esc_attr( $attributes['classes'] ) . '"';
 		$modal_index = count( $modal_vars['modals'] ) - 1;
-		$link = '<' . $atts['tag'] . ' data-toggle="modal" data-target="#wpmodal-' . esc_attr( $modal_index ) . '"' . $classes . '>' . $atts['label'] . '</' . $atts['tag'] . '>';
+		$link = '<' . $attributes['tag'] . ' data-toggle="modal" data-target="#wpmodal-' . esc_attr( $modal_index ) . '"' . $classes . '>' . $attributes['label'] . '</' . $attributes['tag'] . '>';
 		return $link;
 
 	}
@@ -171,20 +176,20 @@ class WPModal {
 			} // End foreach().
 		} // End if().
 	}
-	
+
 	/**
 	 * Setup locale method
 	 */
-  	public function load_locale() { 
-    	load_plugin_textdomain( $this->td, false, dirname( plugin_basename( __FILE__ ) ) . '/translations');
-  	}
+	public function load_locale() {
+		load_plugin_textdomain( $this->td, false, dirname( plugin_basename( __FILE__ ) ) . '/translations' );
+	}
 
-  	/**
-  	 * Activation function - Can be used to trigger operations upon activating the plugin. 
-  	 */
-  	public function activate() {
-  		// Nothing to do here... for now.
-  	}
+	/**
+	 * Activation function - Can be used to trigger operations upon activating the plugin.
+	 */
+	public function activate() {
+		// Nothing to do here... for now.
+	}
 
   	/**
   	 *	Filters to register the plugin with tinyMCE.
@@ -285,6 +290,7 @@ class WPModal {
 
   	}
 
+
 	function wpmodal_add_admin_menu(  ) { 
 
 		add_options_page( 'WPModal', 'WPModal', 'manage_options', 'wpmodal', array($this, 'wpmodal_options_page' ) );
@@ -298,18 +304,18 @@ class WPModal {
 
 		add_settings_section(
 			'wpmodal_pluginPage_section', 
-			__( 'Base settings', 'wpmodal' ), 
+			__( 'Configuration page', 'wpmodal' ), 
 			array( $this, 'wpmodal_settings_section_callback' ), 
 			'pluginPage'
 		);
 
-		add_settings_field( 
-			'wpmodal_checkbox_field_0',
-			__( 'Enable "Formidable Forms" compatibility', 'wpmodal' ), 
-			array( $this, 'wpmodal_checkbox_field_0_render' ), 
-			'pluginPage', 
-			'wpmodal_pluginPage_section' 
-		);
+		// add_settings_field( 
+		// 	'wpmodal_checkbox_field_0', 
+		// 	__( 'Disable auto bootstrap theme detection', 'wpmodal' ), 
+		// 	array( $this, 'wpmodal_checkbox_field_0_render' ), 
+		// 	'pluginPage', 
+		// 	'wpmodal_pluginPage_section' 
+		// );
 
 		// add_settings_field( 
 		// 	'wpmodal_checkbox_field_1', 
@@ -374,7 +380,8 @@ class WPModal {
 			<br>
 		<?php
 
-		echo __( 'You can force the render method used for the modal, or activate support for Formidable Forms submissions.', 'wpmodal' );
+
+		echo __( 'You can disable bootstrap detection below. You can also force the render method used.', 'wpmodal' );
 
 	}
 

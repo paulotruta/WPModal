@@ -14,7 +14,6 @@ $allowed_sizes = array(
 );
 $size = isset( $allowed_sizes[ $atts['size'] ] ) ? $allowed_sizes[ $atts['size'] ] : '';
 $title = empty( $atts['modal_title'] ) ? $atts['label'] : $atts['modal_title'];
-$title = explode( ' ', $title, 3 );
 ?>
 
 <div id="wpmodal-<?php echo esc_attr( $i ); ?>" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="ModalLabel-<?php echo esc_attr( $i ); ?>" aria-hidden="true">
@@ -22,8 +21,7 @@ $title = explode( ' ', $title, 3 );
 		<div class="modal-content">
 			<div class="modal-header">
 				<a class="close frm_icon_font frm_cancel1_icon alignright" data-dismiss="modal"></a>
-				<h3 class="modal-title" id="ModalLabel-<?php echo esc_attr( $i ); ?>"><?php echo esc_attr( "$title[0] $title[1]" ); ?></h3>
-				<h3 class="modal-title" id="ModalLabel-<?php echo esc_attr( $i ); ?>"><?php echo esc_attr( $title[2] ); ?></h3>
+				<h3 class="modal-title" id="ModalLabel-<?php echo esc_attr( $i ); ?>"><?php echo esc_attr( "$title" ); ?></h3>
 			</div>
 			<div class="modal-body">
 				<?php
@@ -44,7 +42,7 @@ $title = explode( ' ', $title, 3 );
                 }
                 echo do_shortcode( $atts['inner_content'] ); // Ensures any shortcode contained in the content will be correctly rendered.
 
-				?>
+				?>]
 			</div>
 		</div>
 	</div>

@@ -87,7 +87,7 @@ class WPModal {
 		// Defining settings page for this plugin.
 		add_action( 'admin_menu', array( $this, 'wpmodal_add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'wpmodal_settings_init' ) );
-
+		// add_action( 'wp_enqueue_scripts', array( $this, 'wpa_inspect_styles'), 9999 );
 
 		return true;
 	}
@@ -277,16 +277,48 @@ class WPModal {
 
   	}
 
+  	function wpa_inspect_styles(){
+	    global $wp_styles;
+	    var_dump( $wp_styles );
+	}
+
   	/**
   	 * Enqueue scripts for the frontend.
   	 */
   	public function enqueue_scripts() {
+
+  		$generic_modal = false;
+
+  		$options = get_option( 'wpmodal_settings' );
+  		if( isset( $options['wpmodal_select_field_2'] ) && ( $options['wpmodal_select_field_2'] > 2 ) ){
+  			$generic_modal = true;
+  		}
+
+  		if( $options['wpmodal_select_field_2'] == 0 ) {
+  			// Try to autodetect bootstrap.
+  			$style = 'bootstrap';
+			if( ( ! wp_style_is( $style, 'queue' ) ) && ( ! wp_style_is( $style, 'done' ) ) ) {
+				$generic_modal = false;
+			}
+  		}
   		
   		wp_register_style( 'wpmodal_styles', plugin_dir_url( __FILE__ ) . 'assets/css/style.css' );
+  		if( $generic_modal ) wp_register_style( 'jquery_modal_css', plugin_dir_url( __FILE__ ) . 'assets/js/vendor/jquery_modal/jquery.modal.min.css' );
   		wp_register_script( 'wpmodal_scripts', plugin_dir_url( __FILE__ ) . 'assets/js/main.js', array( 'jquery' ), '1.0', true );
+  		if( $generic_modal ) wp_register_script( 'jquery_modal', plugin_dir_url( __FILE__ ) . 'assets/js/vendor/jquery_modal/jquery.modal.min.js', array( 'jquery' ), '1.0', true );
+
+
+  		// Localize the script with new data
+		$translation_array = array(
+			'generic_modal' => $generic_modal,
+		);
+		wp_localize_script( 'wpmodal_scripts', 'context', $translation_array );
+
 
   		wp_enqueue_style( 'wpmodal_styles' );
   		wp_enqueue_script( 'wpmodal_scripts' );
+  		wp_enqueue_style( 'jquery_modal_css' );
+  		wp_enqueue_script( 'jquery_modal' );
 
   	}
 

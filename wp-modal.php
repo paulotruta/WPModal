@@ -87,7 +87,6 @@ class WPModal {
 		// Defining settings page for this plugin.
 		add_action( 'admin_menu', array( $this, 'wpmodal_add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'wpmodal_settings_init' ) );
-		// add_action( 'wp_enqueue_scripts', array( $this, 'wpa_inspect_styles'), 9999 );
 
 		return true;
 	}
@@ -277,29 +276,54 @@ class WPModal {
 
   	}
 
-  	function wpa_inspect_styles(){
-	    global $wp_styles;
-	    var_dump( $wp_styles );
+  	private function has_bootstrap_modal(){
+        // $bootstrap_css = ( $this -> rsearch( get_template_directory() . '/', 'bootstrap.css' ) );
+        // $bootstrap_min_css = ( $this -> rsearch( get_template_directory() . '/', 'bootstrap.min.css' ) );
+        $bootstrap_js = ( $this -> rsearch( get_template_directory() . '/', 'bootstrap.js' ) );
+        $bootstrap_min_js = ( $this -> rsearch( get_template_directory() . '/', 'bootstrap.min.js' ) );
+
+       if( $bootstrap_js || $bootstrap_min_js ){
+            return true;
+       }
+
+       return false;
 	}
+
+    /**
+     * Recursively search for a file.
+     * @param  String $folder  Initial path to search
+     * @param  String $pattern The file name to search
+     * @return String|Bool     The path to the file found, or false it not found.
+     */
+    private function rsearch($folder, $pattern) {
+        $iti = new RecursiveDirectoryIterator($folder);
+        foreach(new RecursiveIteratorIterator($iti) as $file){
+             if(strpos($file , $pattern) !== false){
+                return $file;
+            }
+        }
+        return false;
+    }
 
   	/**
   	 * Enqueue scripts for the frontend.
   	 */
   	public function enqueue_scripts() {
 
-  		$generic_modal = false;
+  		$generic_modal = true;
 
   		$options = get_option( 'wpmodal_settings' );
   		if( isset( $options['wpmodal_select_field_2'] ) && ( $options['wpmodal_select_field_2'] > 2 ) ){
   			$generic_modal = true;
   		}
+        else {
+            $generic_modal = false;
+        }
 
-  		if( $options['wpmodal_select_field_2'] == 0 ) {
+  		if( $options['wpmodal_select_field_2'] == 0 && $this -> has_bootstrap_modal() ) {
   			// Try to autodetect bootstrap.
-  			$style = 'bootstrap';
-			if( ( ! wp_style_is( $style, 'queue' ) ) && ( ! wp_style_is( $style, 'done' ) ) ) {
-				$generic_modal = false;
-			}
+            print_r("Bootstrap modal detected!");
+			$generic_modal = false;
   		}
   		
   		wp_register_style( 'wpmodal_styles', plugin_dir_url( __FILE__ ) . 'assets/css/style.css' );
@@ -317,8 +341,11 @@ class WPModal {
 
   		wp_enqueue_style( 'wpmodal_styles' );
   		wp_enqueue_script( 'wpmodal_scripts' );
-  		wp_enqueue_style( 'jquery_modal_css' );
-  		wp_enqueue_script( 'jquery_modal' );
+
+        if( $generic_modal ) {
+            wp_enqueue_style( 'jquery_modal_css' );
+            wp_enqueue_script( 'jquery_modal' );
+        }
 
   	}
 
